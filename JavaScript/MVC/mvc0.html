@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko"  xml:lang="ko">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8" />
+	<head>
+		<title>mvc0</title>
+	</head>
+
+	<body>
+		<div class='container'>
+			<div class='page-header'>
+				<h1>Event Example</h1>
+			</div>
+			<div>
+				<div class="input-group">
+				<input type='text' id='text1' class='form-control'>
+					<span class="input-group-addon" id="btn">ADD</span>
+				</div>
+				<div>
+					<ul id='list' class="list-group">
+					</ul>
+				</div>
+			</div>
+		</div>
+		<script src="pubsub.js"></script>
+		<script src="dataModel.js"></script>
+		<script>
+			var broker=new EventBroker();
+			var input=document.getElementById("text1");
+			var btn= document.getElementById("btn");
+			
+			btn.addEventListener("click",function(event){
+				console.log("click...."+input.value);
+				dataModel.add(input.value); //dataModel에 새로운 값 설정! 이때 새로운 임의의 아이디가 부여됨
+				broker.publish("refresh");//브로커에게 refresh 이벤트 가진 애들한데 다 뿌려줘! 요청함.
+			},false);
+			
+			var list=document.getElementById("list");
+			
+			broker.subscribe(list,"refresh",function(event){
+				console.log("list...refresh...."+event.detail);
+				var data= dataModel.findAll(); //변수값을 항상 dataModel에 넣어서 들고다님
+				var str="";
+				
+				for(var i=0,len=data.length; i<len; i++){
+					str+="<li id='"+data[i]+"' class='list-group-item'>"+
+					data[i].id+" : "+data[i].memo+"</li>";
+				}
+				this.innerHTML=str;
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko"  xml:lang="ko">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8" />
+	<head>
+		<title>mvc1</title>
+	</head>
+
+	<body>
+		<div class='container'>
+			<div class='page-header'>
+				<h1>Event Example</h1>
+			</div>
+			<div>
+				<div class="input-group">
+				<input type='text' id='text1' class='form-control'>
+					<span class="input-group-addon" id="btn">ADD</span>
+				</div>
+				<div>
+					<ul id='list' class="list-group">
+					</ul>
+				</div>
+			</div>
+		</div>
+		<script src="pubsub.js"></script>
+		<script src="dataModel.js"></script>
+		<script src="view.js"></script>
+		<script>
+			var broker=new EventBroker();
+			var inputView=
+				new View(broker, dataModel, document.getElementById("text1"));
+			var btn= 
+				new View(broker, dataModel, document.getElementById("btn"));
+			var input=document.getElementById("text1");
+			
+			btn.subscribe({
+				eventType:'click',
+				callback: function(event){
+					this.model.add(input.value);
+					this.broker.publish("refresh");
+				},
+				capture:false
+			});
+			
+			
+			var listView=
+				new View(broker,dataModel,document.getElementById("list"));
+				
+			listView.subscribe({
+				msgType:'refresh',
+				callback:function(event){
+					console.log("list....refresh....");
+					var data=this.model.findAll();//모든 데이터 찾아오기
+					var str="";
+					
+					for(var i=0, len=data.length;i<len;i++){
+						str+="<li id'"+data[i].id+"' class='list-group-item'>"+
+						data[i].id+" : "+data[i].memo+"</li>";
+					}
+					this.view.innerHTML=str;
+				},
+				capture: false
+			});
+			
+		</script>
+	</body>
+</html>

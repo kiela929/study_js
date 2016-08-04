@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko"  xml:lang="ko">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8" />
+	<head>
+		<title>proxy0</title>
+		
+		<script>
+			var target={/*얘는 타깃! 실제데이터임*/
+				val:"",
+				_create: function(data){
+					console.log("create함!");
+					this.val=data;
+				},
+				_read: function(data){
+					console.log("read함! 값은: "+this.val);
+				},
+				_update: function(data){
+					console.log("update함!!");
+				},
+				_delete: function(data){
+					console.log("delete함!");
+				}
+				
+			};
+			
+			function makeProxy(obj){
+				/*얘가 바로 프록시!
+				 받는 것이 타깃임. 
+				 타깃을 받아서 프록시에 타깃을 추가함. */
+				var proxy={},self;
+				proxy.target=obj;
+				self=this;
+				
+				var proxyMethod=function(method, context){
+					return function(){
+						console.log("----------------------");
+						var result=method.apply(context,arguments);
+						console.log("=======================");
+						return result;
+					};
+				};
+				
+				for(var prop in obj){
+					if(typeof obj[prop]==='function'){
+						proxy[prop]=proxyMethod(obj[prop],obj);
+					}
+				}
+				return proxy;
+			}
+			
+			var proxyObject=makeProxy(target);
+			proxyObject._create('zzzzzzzzzz');
+			proxyObject._read();
+		</script>
+	</head>
+
+	<body>
+		
+	</body>
+</html>
